@@ -1,0 +1,49 @@
+# GitHub Advanced Security needed for this workflow. 
+# Description below:
+# https://docs.github.com/en/enterprise-cloud@latest/admin/code-security/managing-github-advanced-security-for-your-enterprise/managing-github-advanced-security-features-for-your-enterprise
+
+name: Scan code
+
+on:
+  # pull_request:
+  #   branches:
+  #     - develop
+  #     - staging
+  #     - master
+  workflow_dispatch:
+
+jobs:
+  format-code:
+    name: Scan code
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      repository-projects: write
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Switch to PR Source Branch
+      run: |
+        git fetch --all
+        git checkout ${{ github.event.pull_request.head.ref }} 
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{matrix.language}}
+
+    - name: Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"    
+

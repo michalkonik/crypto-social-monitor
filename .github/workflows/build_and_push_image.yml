@@ -1,0 +1,53 @@
+name: Build and push docker image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and push docker image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: To be removed after testing
+      run: |
+        git fetch --all
+        git checkout main
+
+    - name: Create .env file
+      run: |
+        cp .env.example .env
+
+    - name: Build docker image
+      run: docker build -f Dockerfile.prod -t social_monitor .
+
+    - name: Install AWS CLI
+      if: success()
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y awscli
+    
+    - name: Configure AWS credentials
+      if: success()
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set region eu-central-1
+
+    - name: Login to AWS ECR
+      if: success()
+      run: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 905418271085.dkr.ecr.eu-central-1.amazonaws.com/crypto_koryo
+
+    - name: Tag docker image
+      if: success()
+      run: docker tag social_monitor:latest 905418271085.dkr.ecr.eu-central-1.amazonaws.com/crypto_koryo
+
+    - name: Push docker image to AWS ECR
+      if: success()
+      run: docker push 905418271085.dkr.ecr.eu-central-1.amazonaws.com/crypto_koryo

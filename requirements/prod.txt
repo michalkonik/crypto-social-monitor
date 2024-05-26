@@ -1,0 +1,4 @@
+-r base.txt
+python-json-logger
+gunicorn
+newrelic==9.6.*

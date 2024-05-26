@@ -1,0 +1,50 @@
+name: Format Code
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - staging
+      - master
+  workflow_dispatch:
+
+jobs:
+  format-code:
+    name: Format Python Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Switch to PR Source Branch
+      run: |
+        git fetch --all
+        git checkout ${{ github.event.pull_request.head.ref }} 
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/dev.txt
+
+    - name: Format Code with Ruff
+      run: ruff format .
+
+    - name: List formatted files
+      run: git diff --name-only
+
+    - name: Stage Changes
+      run: git add .
+
+    - name: Commit and Push Changes
+      run: |
+        git config user.email "michal.konik.job@gmail.com"
+        git config user.name "GitHub Actions Michal"
+        git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+        eval $(ssh-agent -s) &>/dev/null || exit 1
+        echo "${{ secrets.AUTOMATION_USER_TOKEN }}" | ssh-add - &>/dev/null || exit 2
+
+        git commit -m "Auto-formatted Python code using Ruff" || echo "No changes to commit"
+        
+        chmod +x ./.github/workflows/scripts/git_actions.sh
+        ./.github/workflows/scripts/git_actions.sh git_push_changes
