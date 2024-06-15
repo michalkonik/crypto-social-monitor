@@ -7,6 +7,8 @@ from starlette.middleware.cors import CORSMiddleware
 from src.auth.router import router as auth_router
 from src.config import app_configs, settings
 
+from src.external_service.router import router as external_service_router
+
 app = FastAPI(**app_configs)
 
 app.add_middleware(
@@ -34,3 +36,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(
+    external_service_router, prefix="/external-service", tags=["External Service Calls"]
+)
