@@ -228,3 +228,175 @@ class PreCalculatedDataStore(SQLModel, table=True):
     )
 
 
+class PostLabels(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint("post_id"),
+        ForeignKeyConstraint(["post_id"], ["posts.id"]),
+        Index('idx_post_labels_post_id', 'post_id')
+    )
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int
+    sentiment_label: str
+    created_time: datetime = Field(default=func.now(), sa_column=Column(DateTime(timezone=True)))
+
+class PreCalculatedOverviewData1h(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData4h(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData6h(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData12h(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData1d(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+class PreCalculatedOverviewData3d(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData7d(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData14d(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
+class PreCalculatedOverviewData1m(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    hourly_changes_follows: Optional[str] = Field(default=None)
+    hourly_changes_ticker_mentions: Optional[str] = Field(default=None)
+    word_cloud: Optional[str] = Field(default=None)
+    posts_activity: Optional[str] = Field(default=None)
+    follows_activity: Optional[str] = Field(default=None)
+    sentiment_activity: Optional[str] = Field(default=None)
+    projects_mind_share_activity: Optional[str] = Field(default=None)
+    category_mind_share_activity: Optional[str] = Field(default=None)
+
+    created_time: datetime = Field(
+        default=func.now(),
+        sa_column=Column(DateTime(timezone=True))
+    )
+
+
