@@ -9,6 +9,8 @@ from src.config import app_configs, settings
 
 from src.external_service.router import router as external_service_router
 
+from src.twitter.router import router as twitter_router
+
 app = FastAPI(**app_configs)
 
 app.add_middleware(
@@ -38,4 +40,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(
     external_service_router, prefix="/external-service", tags=["External Service Calls"]
+)
+app.include_router(
+    twitter_router, prefix="/twitter", tags=["Twitter"]
 )
