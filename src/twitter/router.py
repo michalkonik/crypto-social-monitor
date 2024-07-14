@@ -210,3 +210,174 @@ async def get_tickers_info(
     return tickers_with_mentions
 
 
+@router.get("/users/unique_mentions", response_model=Dict)
+async def get_user_unique_mentions(
+        screen_names: List[str] = Query(...),
+        limit: Optional[int] = None,
+):
+    if not screen_names:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No screen names provided.")
+
+    return await service.get_tickers_mentioned_by_users(
+        screen_names=screen_names,
+        limit=limit
+    )
+
+
+@router.get("/users/", response_model=Dict)
+async def get_users_info(
+        screen_names: List[str] = Query(...),
+        short_info: Optional[bool] = False,
+        include_market_data: Optional[bool] = False,
+        all_ticker_mentions: Optional[bool] = False,
+        limit: Optional[int] = None,
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        background_tasks: BackgroundTasks = BackgroundTasks()
+) -> dict[str, str] | dict[str, str] | dict[Any, dict[str, dict[Any, Any] | Any]]:
+    if sum([short_info, include_market_data, all_ticker_mentions]) > 1:
+        return {"detail": "You can only use one of short_info, include_market_data, or only_ticker_mentions at a time"}
+
+    if not screen_names:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No screen names provided.")
+
+    accounts_info = await service.get_user_profiles_info(
+        screen_names=screen_names
+    )
+    if not accounts_info:
+        return {"detail": "Users are not found."}
+
+    accounts_pnl_data = {}
+    recently_mentioned_tickers = {}
+    most_mentioned_tickers = {}
+
+    if include_market_data:
+        accounts_pnl_data = await service.get_screen_names_pnl(
+            screen_names=screen_names,
+            limit=limit,
+            background_tasks=background_tasks
+        )
+    elif short_info:
+        # TODO: Add to the response Wins, Loses, and Total PnL which would be saved in Redis
+        # Get recently mentioned tickers
+        recently_mentioned_tickers = await service.get_tickers_mentioned_by_users(
+            screen_names=screen_names,
+            limit=service.RECENTLY_MENTIONED_THRESHOLD
+        )
+        # Get most mentioned tickers
+        most_mentioned_tickers = await service.get_tickers_mentioned_by_users(
+            screen_names=screen_names,
+            most_mentioned=True,
+            limit=service.MOST_MENTIONED_THRESHOLD
+        )
+
+    result = {}
+    for screen_name, account_info in accounts_info.items():
+        user_data = {"account_info": account_info}
+
+        if include_market_data:
+            user_data["pnl_per_ticker"] = accounts_pnl_data.get(screen_name, {})
+
+        if short_info:
+            tickers = list(set(ticker['ticker'] for ticker in recently_mentioned_tickers.get(screen_name, [])))
+            user_data["recently_mentioned_unique_tickers"] = tickers
+            tickers = list(set(ticker['ticker'] for ticker in most_mentioned_tickers.get(screen_name, [])))
+            user_data["most_mentioned_unique_tickers"] = tickers
+
+        result[screen_name] = user_data
+
+    return result
+
+
+@router.get("/monitored", response_model=List[TwitterUsers])
+async def get_monitored_users(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        page: int = 1,
+        page_size: int = 10
+) -> list[dict[str, Any]]:
+    monitored_users = await service.get_monitored_twitter_users(
+        skip=(page - 1) * page_size,
+        limit=page_size
+    )
+
+    return monitored_users
+
+
+@router.get("/suggested", response_model=List[TwitterSuggestedUsers])
+async def get_monitored_users(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        page: int = 1,
+        page_size: int = 10
+) -> list[dict[str, Any]]:
+    suggested_users = await service.get_suggested_twitter_users(
+        skip=(page - 1) * page_size,
+        limit=page_size
+    )
+
+    return suggested_users
+
+
+@router.get("/followed", response_model=List[TwitterFollowedUsers])
+async def get_followed_users(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        page: int = 1,
+        page_size: int = 10
+) -> list[dict[str, Any]]:
+    followed_users = await service.get_followed_twitter_users(
+        skip=(page - 1) * page_size,
+        limit=page_size
+    )
+
+    return followed_users
+
+
+@router.get("/posts", response_model=List[Posts])
+async def get_twitter_posts(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        user: str = None,
+        search_keywords: Optional[List[str]] = Query(None),  # This line is crucial
+        page: int = 1,
+        page_size: int = 10
+) -> list[dict[str, Any]]:
+    posts = await service.get_twitter_posts(
+        user=user,
+        search_keywords=search_keywords,
+        skip=(page - 1) * page_size,
+        limit=page_size
+    )
+
+    return posts
+
+
+@router.get("/keyword_daily_stats", response_model=List)
+async def get_twitter_tickers(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        keywords: List[str] = Query(...),
+):
+    if not keywords:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No keywords provided.")
+
+    daily_stats = await service.get_keyword_mentions_stats_per_day(
+        keywords=keywords,
+    )
+    return daily_stats
+
+
+@router.get("/tickers", response_model=List)
+async def get_twitter_user_tickers(
+        jwt_data: JWTData = Depends(parse_jwt_user_data),
+        user: str = None,
+        ticker: str = None,
+        page: int = 1,
+        page_size: int = 10
+) -> list[dict[str, Any]]:
+    if not user and not ticker:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No user or ticker provided.")
+
+    tickers = await service.get_twitter_tickers(
+        user=user,
+        ticker=ticker,
+        skip=(page - 1) * page_size,
+        limit=page_size
+    )
+
+    return tickers
