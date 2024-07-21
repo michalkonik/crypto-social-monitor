@@ -6,10 +6,21 @@ from starlette.middleware.cors import CORSMiddleware
 
 from src.auth.router import router as auth_router
 from src.config import app_configs, settings
-
 from src.external_service.router import router as external_service_router
 
 from src.twitter.router import router as twitter_router
+
+# Narratives router
+from src.twitter.routers.narratives.router import router as narratives_router
+
+# KOL clusters router
+from src.twitter.routers.kol.router import router as kol_router
+
+# Search term router
+from src.twitter.routers.search.router import router as search_project_router
+
+# User overview
+from src.twitter.routers.overview.router import router as overview_router
 
 app = FastAPI(**app_configs)
 
@@ -43,4 +54,16 @@ app.include_router(
 )
 app.include_router(
     twitter_router, prefix="/twitter", tags=["Twitter"]
+)
+app.include_router(
+    narratives_router, prefix="/narratives", tags=["Narratives"]
+)
+app.include_router(
+    kol_router, prefix="/kols", tags=["KOLs"]
+)
+app.include_router(
+    search_project_router, prefix="/search", tags=["search project"]
+)
+app.include_router(
+    overview_router, prefix="/twitter_users", tags=["Project overview"]
 )
